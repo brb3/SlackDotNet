@@ -4,10 +4,14 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageId>SlackDotNet</PackageId>
-    <Version>0.0.1</Version>
+    <Version>0.0.1-alpha</Version>
     <Authors>Bobby Burden III</Authors>
     <Company>brb3</Company>
+    <RepositoryUrl>https://github.com/brb3/SlackDotNet</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
     <Description>Library for interacting with the Slack API.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>slack</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
