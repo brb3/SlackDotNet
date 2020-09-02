@@ -1,5 +1,7 @@
 using SlackDotNet.Webhooks;
 using Xunit;
+using Moq;
+using SlackDotNet.Services;
 
 namespace SlackDotNet.Test
 {
@@ -8,7 +10,10 @@ namespace SlackDotNet.Test
         [Fact]
         public void TestWebhookValidator()
         {
-            var slackClient = new Slack("12345", "67890", "ABCDE");
+            var mockChat = new Mock<IChat>();
+            var mockUsers = new Mock<IUsers>();
+            var slackConfig = new SlackConfig("12345", "67890", "ABCDE");
+            var slackClient = new Slack(slackConfig, mockChat.Object, mockUsers.Object);
             var validWebhookMessage = new WebhookMessage()
             {
                 Token = "ABCDE"

@@ -1,23 +1,19 @@
-using Flurl;
-using Flurl.Http;
 using SlackDotNet.Webhooks;
-using SlackDotNet.Responses;
-using SlackDotNet.Payloads;
-using System.Threading.Tasks;
+using SlackDotNet.Services;
 
 namespace SlackDotNet
 {
-    public class Slack
+    public class Slack : ISlack
     {
-        private string OauthToken { get; set; }
-        private string SigningSecret { get; set; }
-        private string VerificationToken { get; set; }
+        public SlackConfig Config { get; set; }
+        public IChat Chat { get; set; }
+        public IUsers Users { get; set; }
 
-        public Slack(string oauthToken, string signingSecret, string verificationToken)
+        public Slack(SlackConfig config, IChat slackChat, IUsers slackUsers)
         {
-            OauthToken = oauthToken;
-            SigningSecret = signingSecret;
-            VerificationToken = verificationToken;
+            Config = config;
+            Chat = slackChat;
+            Users = slackUsers;
         }
 
         /// <summary>
@@ -28,37 +24,7 @@ namespace SlackDotNet
         /// <returns></returns>
         public bool ValidWebhookMessage(WebhookMessage model)
         {
-            return model.Token == VerificationToken;
-        }
-
-        /// <summary>
-        /// Gets a slack user's information
-        /// </summary>
-        /// <param name="userId"></param>
-        /// <returns></returns>
-        public async Task<User> GetUser(string userId)
-        {
-            var response = await "https://slack.com/api/users.info"
-                .SetQueryParam("token", OauthToken)
-                .SetQueryParam("user", userId)
-                .GetJsonAsync<Response>();
-            
-            return response.User;
-        }
-
-        /// <summary>
-        /// Posts a message to a channel
-        /// </summary>
-        /// <param name="message"></param>
-        /// <returns></returns>
-        public async Task<bool> PostMessage(ChatMessage message, bool ephemeral = false)
-        {
-            var endpoint = ephemeral ? "Ephemeral" : "Message";
-            var response = await $"https://slack.com/api/chat.post{endpoint}"
-                .WithHeader("Authorization", "Bearer " + OauthToken)
-                .PostJsonAsync(message);
-
-            return true;
+            return model.Token == Config.VerificationToken;
         }
     }
 }
