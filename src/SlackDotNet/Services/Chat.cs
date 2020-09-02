@@ -23,5 +23,45 @@ namespace SlackDotNet.Services
 
             return true;
         }
+
+        public Task<bool> Delete(string channel, string timestamp, bool asUser)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Task<bool> DeleteScheduledMessage(string channel, string scheduledMessageId, bool asUser)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Task<string> GetPermalink(string channel, string timestamp)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Task<bool> MeMessage(string channel, string text)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Task<bool> PostEphemeral(ChatMessage message)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Task<bool> PostMessage(ChatMessage message)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Task<bool> ScheduleMessage(ChatMessage message)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Task<bool> Update(ChatMessage message)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }
