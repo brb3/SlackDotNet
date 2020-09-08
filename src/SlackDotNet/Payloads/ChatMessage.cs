@@ -1,5 +1,6 @@
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 
 namespace SlackDotNet.Payloads
 {
@@ -111,5 +112,26 @@ namespace SlackDotNet.Payloads
         /// <value></value>
         [JsonProperty("user")]
         public string User { get; set; }
+
+        /// <summary>
+        /// Unix EPOCH timestamp of time in future to send the message.
+        /// </summary>
+        /// <value></value>
+        [JsonProperty("post_at")]
+        public int PostAt { get; set; }
+
+        /// <summary>
+        /// Array of structured attachments, presented as a URL-encoded string.
+        /// </summary>
+        /// <value></value>
+        [JsonProperty("attachments")]
+        public List<ChatAttachment> Attachments { get; set; }
+
+        /// <summary>
+        /// Array of structured blocks, presented as a URL-encoded string.
+        /// </summary>
+        /// <value></value>
+        [JsonProperty("blocks")]
+        public List<ChatBlock> Blocks { get; set; }
     }
 }

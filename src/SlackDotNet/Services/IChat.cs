@@ -5,13 +5,13 @@ namespace SlackDotNet.Services
 {
     public interface IChat
     {
-        Task<bool> Delete(string channel, string timestamp, bool asUser);
-        Task<bool> DeleteScheduledMessage(string channel, string scheduledMessageId, bool asUser);
-        Task<string> GetPermalink(string channel, string timestamp);
-        Task<bool> MeMessage(string channel, string text);
-        Task<bool> PostEphemeral(ChatMessage message);
-        Task<bool> PostMessage(ChatMessage message);
-        Task<bool> ScheduleMessage(ChatMessage message);
-        Task<bool> Update(ChatMessage message);
+        Task<Responses.Chat> Delete(string channel, string ts, bool asUser);
+        Task<Responses.Chat> DeleteScheduledMessage(string channel, string scheduledMessageId, bool asUser);
+        Task<string> GetPermalink(string channel, string ts);
+        Task<Responses.Chat> MeMessage(string channel, string text);
+        Task<Responses.Chat> PostEphemeral(ChatMessage message);
+        Task<Responses.Chat> PostMessage(ChatMessage message, bool ephemeral);
+        Task<Responses.Chat> ScheduleMessage(ChatMessage message);
+        Task<Responses.Chat> Update(ChatMessage message);
     }
 }
