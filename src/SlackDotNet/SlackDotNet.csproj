@@ -1,23 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <PackageId>SlackDotNet</PackageId>
-    <Version>0.0.2-alpha</Version>
-    <Authors>Bobby Burden III</Authors>
-    <Company>brb3</Company>
-    <RepositoryUrl>https://github.com/brb3/SlackDotNet</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <Description>Library for interacting with the Slack API.</Description>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageTags>slack</PackageTags>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Flurl" Version="2.8.2" />
-    <PackageReference Include="Flurl.Http" Version="2.4.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
-  </ItemGroup>
 
 </Project>
