@@ -33,7 +33,7 @@ namespace SlackDotNet
         public async Task Connect()
         {
             Logger.LogInformation("Requesting WebSocket connection from Slack.");
-            var response = await SlackURIs.AppConnectionsOpen
+            var response = await SlackApiEndpoints.AppConnectionsOpen
                 .WithHeader("Authorization", $"Bearer {Options.AppLevelToken}")
                 .PostAsync()
                 .ReceiveJson<Connection>();

@@ -2,6 +2,9 @@ using System.Threading.Tasks;
 
 namespace SlackDotNet
 {
+    /// <summary>
+    /// Provides a WebSocket connection from Slack.
+    /// </summary>
     public interface ISlackSocket
     {
         /// <summary>

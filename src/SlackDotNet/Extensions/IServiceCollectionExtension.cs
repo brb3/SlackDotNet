@@ -5,6 +5,12 @@ namespace SlackDotNet.Extensions
 
     public static class IServiceCollectionExtension
     {
+        /// <summary>
+        /// Adds the SlackDotNet services to the IServiceCollection.
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="configurationSection"></param>
+        /// <returns></returns>
         public static IServiceCollection AddSlackDotNet(this IServiceCollection services, IConfigurationSection configurationSection)
         {
             services.Configure<SlackOptions>(o => configurationSection.Bind(o));
