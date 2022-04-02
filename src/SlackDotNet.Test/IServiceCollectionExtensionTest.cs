@@ -17,10 +17,13 @@ public class IServiceCollectionExtensionTest
             .AddJsonFile("appsettings.local.json", true, false)
             .Build();
 
-        var services = new ServiceCollection()
+        var provider = new ServiceCollection()
+            .AddLogging()
             .AddSlackDotNet(config.GetSection("SlackDotNet"))
             .BuildServiceProvider();
 
-        var slackOptions = services.GetService<SlackOptions>();
+        var socket = provider.GetRequiredService<ISlackSocket>();
+
+        Assert.IsType<SlackSocket>(socket);
     }
 }

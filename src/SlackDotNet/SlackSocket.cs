@@ -15,13 +15,12 @@ namespace SlackDotNet
     public class SlackSocket : ISlackSocket, IDisposable
     {
         private SlackOptions Options { get; set; }
-        private WebSocketClient WebSocketClient { get; set; }
+        private WebSocketClient WebSocketClient { get; set; } = new WebSocketClient();
         private ILogger<SlackSocket> Logger { get; }
 
-        public SlackSocket(IOptions<SlackOptions> options, WebSocketClient webSocketClient, ILogger<SlackSocket> logger)
+        public SlackSocket(IOptions<SlackOptions> options, ILogger<SlackSocket> logger)
         {
             Options = options.Value;
-            WebSocketClient = webSocketClient;
             Logger = logger;
         }
 

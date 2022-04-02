@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <IncludeSymbols>true</IncludeSymbols>
     <PackageId>SlackDotNet</PackageId>
     <Version>0.1.0-alpha</Version>
     <Authors>Bobby Burden III</Authors>

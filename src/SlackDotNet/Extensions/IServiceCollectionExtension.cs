@@ -8,7 +8,7 @@ namespace SlackDotNet.Extensions
         public static IServiceCollection AddSlackDotNet(this IServiceCollection services, IConfigurationSection configurationSection)
         {
             services.Configure<SlackOptions>(o => configurationSection.Bind(o));
-            services.AddSingleton<SlackSocket>();
+            services.AddSingleton<ISlackSocket, SlackSocket>();
             return services;
         }
     }
