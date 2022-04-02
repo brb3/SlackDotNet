@@ -1,6 +1,7 @@
-namespace SlackDotNet;
-
-public class SlackOptions
+namespace SlackDotNet
 {
-    public string AppLevelToken { get; set; }
+    public class SlackOptions
+    {
+        public string AppLevelToken { get; set; }
+    }
 }

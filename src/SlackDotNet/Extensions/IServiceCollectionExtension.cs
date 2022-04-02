@@ -1,13 +1,15 @@
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-
-namespace SlackDotNet.Extensions;
-
-public static class IServiceCollectionExtension
+namespace SlackDotNet.Extensions
 {
-    public static IServiceCollection AddSlackDotNet(this IServiceCollection services, IConfigurationSection configurationSection)
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.DependencyInjection;
+
+    public static class IServiceCollectionExtension
     {
-        services.Configure<SlackOptions>(o => configurationSection.Bind(o));
-        return services;
+        public static IServiceCollection AddSlackDotNet(this IServiceCollection services, IConfigurationSection configurationSection)
+        {
+            services.Configure<SlackOptions>(o => configurationSection.Bind(o));
+            services.AddSingleton<SlackSocket>();
+            return services;
+        }
     }
 }
