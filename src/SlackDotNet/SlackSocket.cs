@@ -37,10 +37,13 @@ namespace SlackDotNet
             Logger.LogInformation("WebSocket URL requested successfully.");
 
             Logger.LogInformation("Connecting to WebSocket");
-            try {
+            try
+            {
                 WebSocketClient.MessageHandler = (e) => Task.Run(() => HandleMessage(e.Data));
                 await WebSocketClient.ConnectAsync(wssUrl.ToString());
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 throw new SlackSocketConnectionException("Cannot connect to the WebSocket provided by Slack. See inner exception for more details.", e);
             }
             Logger.LogInformation("WebSocket connection successfully established.");
@@ -54,12 +57,15 @@ namespace SlackDotNet
         private async Task<Uri> GetWssUrl()
         {
             Connection response;
-            try {
+            try
+            {
                 response = await SlackApiEndpoints.AppConnectionsOpen
                     .WithHeader("Authorization", $"Bearer {Options.AppLevelToken}")
                     .PostAsync()
                     .ReceiveJson<Connection>();
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 throw new SlackApiResponseException("Failed to get a WSS URL from the Slack API.", e);
             }
 
