@@ -32,20 +32,43 @@ namespace SlackDotNet
 
         public async Task Connect()
         {
-            Logger.LogInformation("Requesting WebSocket connection from Slack.");
-            var response = await SlackApiEndpoints.AppConnectionsOpen
-                .WithHeader("Authorization", $"Bearer {Options.AppLevelToken}")
-                .PostAsync()
-                .ReceiveJson<Connection>();
+            Logger.LogInformation("Requesting WebSocket URL from Slack.");
+            var wssUrl = await GetWssUrl();
+            Logger.LogInformation("WebSocket URL requested successfully.");
+
+            Logger.LogInformation("Connecting to WebSocket");
+            try {
+                WebSocketClient.MessageHandler = (e) => Task.Run(() => HandleMessage(e.Data));
+                await WebSocketClient.ConnectAsync(wssUrl.ToString());
+            } catch (Exception e) {
+                throw new SlackSocketConnectionException("Cannot connect to the WebSocket provided by Slack. See inner exception for more details.", e);
+            }
+            Logger.LogInformation("WebSocket connection successfully established.");
+        }
+
+        /// <summary>
+        /// Gets the WSS URL to connect to from Slack.
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="SlackSocketConnectionException"></exception>
+        private async Task<Uri> GetWssUrl()
+        {
+            Connection response;
+            try {
+                response = await SlackApiEndpoints.AppConnectionsOpen
+                    .WithHeader("Authorization", $"Bearer {Options.AppLevelToken}")
+                    .PostAsync()
+                    .ReceiveJson<Connection>();
+            } catch (Exception e) {
+                throw new SlackApiResponseException("Failed to get a WSS URL from the Slack API.", e);
+            }
 
             if (!response.Ok)
             {
-                throw new SocketConnectionException("Slack refused to open a Socket connection.");
+                throw new SlackApiResponseException("Slack refused to return a Socket URL.");
             }
 
-            Logger.LogInformation("Slack WebSocket connection open successfully.");
-            WebSocketClient.MessageHandler = (e) => Task.Run(() => HandleMessage(e.Data));
-            await WebSocketClient.ConnectAsync(response.Url.ToString());
+            return response.Url;
         }
 
         public async Task HandleMessage(string message)

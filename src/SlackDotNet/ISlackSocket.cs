@@ -11,6 +11,7 @@ namespace SlackDotNet
         /// Connects to the Slack Socket Mode API.
         /// </summary>
         /// <returns></returns>
+        /// <exception cref="SlackDotNet.Exceptions.SlackSocketConnectionException"></exception>
         Task Connect();
 
         /// <summary>
