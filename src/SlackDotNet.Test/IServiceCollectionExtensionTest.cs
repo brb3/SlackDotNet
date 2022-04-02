@@ -14,7 +14,6 @@ public class IServiceCollectionExtensionTest
         // Load configuration from appsettings.json
         var config = new ConfigurationBuilder()
             .AddJsonFile("appsettings.json", false, false)
-            .AddJsonFile("appsettings.local.json", true, false)
             .Build();
 
         var provider = new ServiceCollection()

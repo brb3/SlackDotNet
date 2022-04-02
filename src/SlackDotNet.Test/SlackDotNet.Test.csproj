@@ -30,12 +30,6 @@
 			<TargetPath>appsettings.json</TargetPath>
 		</ContentWithTargetPath>
 	</ItemGroup>
-	<ItemGroup>
-		<ContentWithTargetPath Include="appsettings.local.json">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-			<TargetPath>appsettings.local.json</TargetPath>
-		</ContentWithTargetPath>
-	</ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\SlackDotNet\SlackDotNet.csproj" />
