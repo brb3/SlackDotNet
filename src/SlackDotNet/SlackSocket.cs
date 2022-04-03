@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using SlackDotNet.Enums;
 using SlackDotNet.Exceptions;
 using SlackDotNet.Models;
+using SlackDotNet.Models.Messages;
 using SlackDotNet.Models.Responses;
 using WebSocketExtensions;
 
@@ -18,10 +19,24 @@ namespace SlackDotNet
         private WebSocketClient WebSocketClient { get; set; } = new WebSocketClient();
         private ILogger<SlackSocket> Logger { get; }
 
+        /// <summary>
+        /// This handler is invoked when no other Handlers match the message type.
+        /// </summary>
+        public Action<SlackWebSocketMessage> DefaultHandler { get; set; }
+
+        /// <summary>
+        /// Handles all "hello" messages received upon WebSocket connection.
+        /// </summary>
+        public Action<HelloMessage> HelloHandler { get; set; }
+
         public SlackSocket(IOptions<SlackOptions> options, ILogger<SlackSocket> logger)
         {
             Options = options.Value;
             Logger = logger;
+
+            // Setup the default Handlers
+            DefaultHandler = (m) => Logger.LogWarning($"Received a message with an unknown type of \"{m.Type}\"");
+            HelloHandler = (m) => DefaultHandlerAction(m);
         }
 
         public void Dispose()
@@ -88,13 +103,26 @@ namespace SlackDotNet
                 await WebSocketClient.SendStringAsync(ack.ToString());
             }
 
-            // "hello" messages are handled internally and logged
-            if (socketMessage.Type == SlackWebSocketMessageType.hello)
+            switch (socketMessage.Type)
             {
-                Logger.LogInformation(
-                    $"Received `hello` from WebSocket. Number of Connections: {socketMessage.NumberOfConnections}"
-                );
+                case (SlackWebSocketMessageType.hello):
+                    var helloMessage = JsonConvert.DeserializeObject<HelloMessage>(message);
+                    HelloHandler.Invoke(helloMessage);
+                    break;
+                default:
+                    DefaultHandler.Invoke(socketMessage);
+                    break;
             }
+        }
+
+        public void RegisterHandlers(Action<HelloMessage> helloHandler)
+        {
+            HelloHandler = helloHandler;
+        }
+
+        private void DefaultHandlerAction(AbstractWebSocketMessage m)
+        {
+            Logger.LogInformation($"Received unhandled `{m.Type}` message from WebSocket.");
         }
     }
 }

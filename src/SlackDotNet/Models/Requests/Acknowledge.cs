@@ -1,4 +1,5 @@
 using Newtonsoft.Json;
+using SlackDotNet.Models.Messages;
 
 namespace SlackDotNet.Models
 {
@@ -13,7 +14,7 @@ namespace SlackDotNet.Models
         [JsonProperty("envelope_id")]
         public string EnvelopeId { get; }
 
-        public Acknowledge(SlackWebSocketMessage slackWebSocketMessage) => EnvelopeId = slackWebSocketMessage.EnvelopeId;
+        public Acknowledge(AbstractWebSocketMessage slackWebSocketMessage) => EnvelopeId = slackWebSocketMessage.EnvelopeId;
 
         /// <summary>
         /// Serializes the Acknowledge object to a JSON string.

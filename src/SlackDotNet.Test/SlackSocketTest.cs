@@ -5,8 +5,11 @@ using Flurl.Http.Testing;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
+using Newtonsoft.Json;
+using SlackDotNet.Enums;
 using SlackDotNet.Exceptions;
 using SlackDotNet.Models;
+using SlackDotNet.Models.Messages;
 using SlackDotNet.Models.Responses;
 using Xunit;
 
@@ -117,5 +120,30 @@ public class SlackSocketTest
                 .WithVerb(HttpMethod.Post)
                 .WithHeader("Authorization", $"Bearer {SlackOptions.AppLevelToken}");
         }
+    }
+
+    /// <summary>
+    /// Tests that the HelloMessage handler can be registered and receives data properly.
+    /// </summary>
+    /// <returns></returns>
+    [Fact]
+    public async Task HandleMessageHello()
+    {
+        var helloMessage = new HelloMessage()
+        {
+            Type = SlackWebSocketMessageType.hello,
+            ConnectionInfo = new ConnectionInfo()
+            {
+                AppId = "1234"
+            }
+        };
+
+        SlackSocket.RegisterHandlers((h) =>
+        {
+            Assert.Equal(SlackWebSocketMessageType.hello, h.Type);
+            Assert.Equal("1234", h.ConnectionInfo.AppId);
+        });
+
+        await SlackSocket.HandleMessage(JsonConvert.SerializeObject(helloMessage));
     }
 }
