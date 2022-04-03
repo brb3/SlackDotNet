@@ -8,6 +8,7 @@ using Moq;
 using Newtonsoft.Json;
 using SlackDotNet.Enums;
 using SlackDotNet.Exceptions;
+using SlackDotNet.Handlers;
 using SlackDotNet.Models;
 using SlackDotNet.Models.Messages;
 using SlackDotNet.Models.Responses;
@@ -29,8 +30,11 @@ public class SlackSocketTest
         };
 
         var options = Options.Create<SlackOptions>(SlackOptions);
+        var defaultHandler = new Mock<IDefaultHandler>();
+        var helloHandler = new Mock<IHelloHandler>();
+        var slashCommandHandler = new Mock<ISlashCommandHandler>();
 
-        SlackSocket = new SlackSocket(options, logger.Object);
+        SlackSocket = new SlackSocket(options, logger.Object, defaultHandler.Object, helloHandler.Object, slashCommandHandler.Object);
     }
 
     /// <summary>
@@ -120,30 +124,5 @@ public class SlackSocketTest
                 .WithVerb(HttpMethod.Post)
                 .WithHeader("Authorization", $"Bearer {SlackOptions.AppLevelToken}");
         }
-    }
-
-    /// <summary>
-    /// Tests that the HelloMessage handler can be registered and receives data properly.
-    /// </summary>
-    /// <returns></returns>
-    [Fact]
-    public async Task HandleMessageHello()
-    {
-        var helloMessage = new HelloMessage()
-        {
-            Type = SlackWebSocketMessageType.hello,
-            ConnectionInfo = new ConnectionInfo()
-            {
-                AppId = "1234"
-            }
-        };
-
-        SlackSocket.RegisterHandlers((h) =>
-        {
-            Assert.Equal(SlackWebSocketMessageType.hello, h.Type);
-            Assert.Equal("1234", h.ConnectionInfo.AppId);
-        });
-
-        await SlackSocket.HandleMessage(JsonConvert.SerializeObject(helloMessage));
     }
 }

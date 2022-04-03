@@ -2,7 +2,7 @@ using Newtonsoft.Json;
 
 namespace SlackDotNet.Models.Messages
 {
-    public class HelloMessage : AbstractWebSocketMessage
+    public class HelloMessage : SlackWebSocketMessage
     {
         [JsonProperty("connection_info")]
         public ConnectionInfo ConnectionInfo { get; set; }
