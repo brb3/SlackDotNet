@@ -5,8 +5,12 @@ namespace SlackDotNet.Models.Messages.Payloads
 {
     public class SlashCommandPayload : PayloadAbstract
     {
+        [Obsolete("The Slack API no longer recommends using the verification token.")]
         [JsonProperty("token")]
         public string Token { get; set; }
+
+        [JsonProperty("api_app_id")]
+        public string ApiAppId { get; set; }
 
         [JsonProperty("team_id")]
         public string TeamId { get; set; }
@@ -37,5 +41,11 @@ namespace SlackDotNet.Models.Messages.Payloads
 
         [JsonProperty("trigger_id")]
         public string TriggerId { get; set; }
+
+        [JsonProperty("enterprise_id")]
+        public string EnterpriseId { get; set; }
+
+        [JsonProperty("enterprise_name")]
+        public string EnterpriseName { get; set; }
     }
 }

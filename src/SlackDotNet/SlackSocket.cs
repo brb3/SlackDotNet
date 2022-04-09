@@ -117,6 +117,8 @@ namespace SlackDotNet
                     var response = await SlashCommandHandler.Handle(slashCommandMessage);
                     await WebSocketClient.SendStringAsync(response.ToString());
                     break;
+                case (SlackWebSocketMessageType.interactive): // TODO
+                case (SlackWebSocketMessageType.events_api): // TODO
                 default:
                     await DefaultHandler.Handle(socketMessage);
                     break;

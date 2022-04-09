@@ -21,6 +21,9 @@ namespace SlackDotNet.Enums
         /// </summary>
         interactive,
 
+        /// <summary>
+        /// Triggered by an event from <see href="https://api.slack.com/events">Events API</see>
+        /// </summary>
         events_api,
     }
 }
