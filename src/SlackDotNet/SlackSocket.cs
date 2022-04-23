@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Flurl.Http;
 using Microsoft.Extensions.Logging;
@@ -22,6 +23,18 @@ namespace SlackDotNet
         private IHelloHandler HelloHandler { get; }
         private ISlashCommandHandler SlashCommandHandler { get; }
         private IDefaultHandler DefaultHandler { get; }
+
+        /// <summary>
+        /// A list of envelope IDs and the time when they were received.
+        ///
+        /// This is used to make sure that we don't respond to a Message that's already been received.
+        /// </summary>
+        private readonly Dictionary<string, DateTime> MessageEnvelopeIds = new Dictionary<string, DateTime>();
+
+        /// <summary>
+        /// The age of the MessageEnvelopeIds cache. When checked, envelope IDs older than this will be discarded.
+        /// </summary>
+        private readonly TimeSpan CacheAge = new TimeSpan(1, 0, 0);
 
         public SlackSocket(
             IOptions<SlackOptions> options,
@@ -62,6 +75,28 @@ namespace SlackDotNet
             Logger.LogInformation("WebSocket connection successfully established.");
         }
 
+        public bool MessageHasBeenHandled(string envelopeId)
+        {
+            var exists = MessageEnvelopeIds.ContainsKey(envelopeId);
+            var now = DateTime.Now;
+            var nowMinusCacheAge = now - CacheAge;
+
+            if (!exists)
+            {
+                MessageEnvelopeIds.Add(envelopeId, now);
+            }
+
+            foreach (var envelope in MessageEnvelopeIds)
+            {
+                if (DateTime.Compare(envelope.Value, nowMinusCacheAge) < 0)
+                {
+                    MessageEnvelopeIds.Remove(envelope.Key);
+                }
+            }
+
+            return exists;
+        }
+
         /// <summary>
         /// Gets the WSS URL to connect to from Slack.
         /// </summary>
@@ -94,7 +129,11 @@ namespace SlackDotNet
         {
             var socketMessage = JsonConvert.DeserializeObject<SlackWebSocketMessage>(message);
 
-            // TODO: Maintain a cache of received endpoint_ids to make sure we handle each one once.
+            if (MessageHasBeenHandled(socketMessage.EnvelopeId))
+            {
+                Logger.LogWarning($"A duplicate message has been received. Ignoring envelope ID {socketMessage.EnvelopeId}");
+                return;
+            }
 
             // After receiving a message from the WebSocket, we need to first ack the message to prevent resends if we won't be responding via the socket.
             if (!String.IsNullOrEmpty(socketMessage.EnvelopeId)

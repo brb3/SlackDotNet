@@ -23,5 +23,12 @@ namespace SlackDotNet
         /// <param name="message"></param>
         /// <returns></returns>
         Task HandleMessage(string message);
+
+        /// <summary>
+        /// Determines if a message's envelopedId has already been handled.
+        /// </summary>
+        /// <param name="envelopeId"></param>
+        /// <returns></returns>
+        bool MessageHasBeenHandled(string envelopeId);
     }
 }

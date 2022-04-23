@@ -5,12 +5,9 @@ using Flurl.Http.Testing;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
-using Newtonsoft.Json;
-using SlackDotNet.Enums;
 using SlackDotNet.Exceptions;
 using SlackDotNet.Handlers;
 using SlackDotNet.Models;
-using SlackDotNet.Models.Messages;
 using SlackDotNet.Models.Responses;
 using Xunit;
 
@@ -124,5 +121,32 @@ public class SlackSocketTest
                 .WithVerb(HttpMethod.Post)
                 .WithHeader("Authorization", $"Bearer {SlackOptions.AppLevelToken}");
         }
+    }
+
+    /// <summary>
+    /// Test that the method that checks if a message has been handled is properly
+    /// caching and testing values.
+    /// </summary>
+    [Fact]
+    public void MessageHasBeenHandledTest()
+    {
+        var envelopeId = "1234567890";
+        var envelopeId2 = "0987654321";
+
+        // Fake a new message
+        var response = SlackSocket.MessageHasBeenHandled(envelopeId);
+        Assert.False(response);
+
+        // Test the same message again to make sure it returns "true"
+        response = SlackSocket.MessageHasBeenHandled(envelopeId);
+        Assert.True(response);
+
+        // Test the same as above to make sure it wasn't purged
+        response = SlackSocket.MessageHasBeenHandled(envelopeId);
+        Assert.True(response);
+
+        // Test a new value
+        response = SlackSocket.MessageHasBeenHandled(envelopeId2);
+        Assert.False(response);
     }
 }
