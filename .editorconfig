@@ -288,7 +288,7 @@ dotnet_diagnostic.RS0005.severity = none
 # See GitHub issue 41640 for more details:
 # https://github.com/dotnet/roslyn/issues/41640
 
-dotnet_diagnostic.IDE0005.severity = warning
+dotnet_diagnostic.IDE0005.severity = error
 
 # IDE0011: Add braces
 csharp_prefer_braces = when_multiline:warning
