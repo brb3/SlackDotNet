@@ -1,5 +1,8 @@
 SlackDotNet
 ===
+
+[![.NET](https://github.com/brb3/SlackDotNet/actions/workflows/dotnet.yml/badge.svg?branch=master)](https://github.com/brb3/SlackDotNet/actions/workflows/dotnet.yml)
+
 *Note:* Currently this is very early and has limited functionality.
 
 This library provides an interface for interacting with the Slack API.
