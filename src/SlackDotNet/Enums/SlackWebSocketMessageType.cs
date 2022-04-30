@@ -25,5 +25,10 @@ namespace SlackDotNet.Enums
         /// Triggered by an event from <see href="https://api.slack.com/events">Events API</see>
         /// </summary>
         events_api,
+
+        /// <summary>
+        /// Sent when warning of an upcoming disconnect. Can have a "reason" of "warning" (10 second warning) or "refresh_requested" (immediate)
+        /// </summary>
+        disconnect,
     }
 }

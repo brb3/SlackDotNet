@@ -1,7 +1,4 @@
-using System;
 using System.Threading.Tasks;
-using SlackDotNet.Models;
-using SlackDotNet.Models.Messages;
 
 namespace SlackDotNet
 {
@@ -13,16 +10,18 @@ namespace SlackDotNet
         /// <summary>
         /// Connects to the Slack Socket Mode API.
         /// </summary>
+        /// <param name="activeConnections">The amount of socket connections to create.</param>
         /// <returns></returns>
         /// <exception cref="SlackDotNet.Exceptions.SlackSocketConnectionException"></exception>
-        Task Connect();
+        Task Connect(int activeConnections = 2);
 
         /// <summary>
         /// Handles messages from the Slack WebSocket by calling configured Handlers.
         /// </summary>
         /// <param name="message"></param>
+        /// <param name="socketIndex">WebSocket to use to respond to the message. (Index of available sockets)</param>
         /// <returns></returns>
-        Task HandleMessage(string message);
+        Task HandleMessage(string message, int socketIndex);
 
         /// <summary>
         /// Determines if a message's envelopedId has already been handled.
