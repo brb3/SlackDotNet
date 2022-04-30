@@ -77,6 +77,9 @@ indent_style = space # Use soft tabs (spaces) for indentation.
 # IDE0055: Fix formatting
 dotnet_diagnostic.IDE0055.severity = warning
 
+# IDE0005: Remove unnecessary import (Remove unnecessary using)
+dotnet_diagnostic.IDE0005.severity = error
+
 # Sort using and Import directives with System.* appearing first
 dotnet_sort_system_directives_first = true
 dotnet_separate_import_directive_groups = false
@@ -281,14 +284,6 @@ csharp_preserve_single_line_statements = true
 dotnet_diagnostic.RS0005.severity = none
 
 [src/{Analyzers,CodeStyle,Features,Workspaces,EditorFeatures, VisualStudio}/**/*.cs]
-
-# IDE0005: Remove unnecessary import (Remove unnecessary using)
-# https://docs.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0005
-# NOTE: To enable this rule on build, you need to enable XML documentation comments for the project.
-# See GitHub issue 41640 for more details:
-# https://github.com/dotnet/roslyn/issues/41640
-
-dotnet_diagnostic.IDE0005.severity = error
 
 # IDE0011: Add braces
 csharp_prefer_braces = when_multiline:warning
