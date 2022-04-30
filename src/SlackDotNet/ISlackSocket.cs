@@ -13,7 +13,7 @@ namespace SlackDotNet
         /// <param name="activeConnections">The amount of socket connections to create.</param>
         /// <returns></returns>
         /// <exception cref="SlackDotNet.Exceptions.SlackSocketConnectionException"></exception>
-        Task Connect(int activeConnections);
+        Task Connect(int activeConnections = 2);
 
         /// <summary>
         /// Handles messages from the Slack WebSocket by calling configured Handlers.
