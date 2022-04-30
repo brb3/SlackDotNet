@@ -1,4 +1,3 @@
-using System.Net.WebSockets;
 using System.Threading.Tasks;
 
 namespace SlackDotNet
@@ -20,9 +19,9 @@ namespace SlackDotNet
         /// Handles messages from the Slack WebSocket by calling configured Handlers.
         /// </summary>
         /// <param name="message"></param>
-        /// <param name="socket">WebSocket to use to respond to the message.</param>
+        /// <param name="socketIndex">WebSocket to use to respond to the message. (Index of available sockets)</param>
         /// <returns></returns>
-        Task HandleMessage(string message, WebSocket socket);
+        Task HandleMessage(string message, int socketIndex);
 
         /// <summary>
         /// Determines if a message's envelopedId has already been handled.
