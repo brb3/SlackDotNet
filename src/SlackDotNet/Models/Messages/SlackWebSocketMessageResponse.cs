@@ -1,5 +1,4 @@
 using Newtonsoft.Json;
-using SlackDotNet.Models.Messages;
 
 namespace SlackDotNet.Models.Messages
 {

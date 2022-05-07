@@ -11,18 +11,27 @@ using SlackDotNet.Handlers;
 using SlackDotNet.Models;
 using SlackDotNet.Models.Messages;
 using SlackDotNet.Models.Responses;
-using WebSocketExtensions;
 
 namespace SlackDotNet
 {
     public class SlackSocket : ISlackSocket, IDisposable
     {
         private SlackOptions Options { get; set; }
-        private WebSocketClient WebSocketClient { get; set; } = new WebSocketClient();
         private ILogger<SlackSocket> Logger { get; }
         private IHelloHandler HelloHandler { get; }
         private ISlashCommandHandler SlashCommandHandler { get; }
         private IDefaultHandler DefaultHandler { get; }
+
+        /// <summary>
+        /// This controls the maximum amount of sockets that can be open with Slack. Slack has a limit of 10
+        /// simultaneous connections for an application.
+        /// </summary>
+        private int SocketLimit { get; } = 10;
+
+        /// <summary>
+        /// A collection of WebSocketClients and their connection status.
+        /// </summary>
+        private WebSocketWrapper[] WebSocketClients { get; set; } = Array.Empty<WebSocketWrapper>();
 
         /// <summary>
         /// A list of envelope IDs and the time when they were received.
@@ -52,27 +61,75 @@ namespace SlackDotNet
 
         public void Dispose()
         {
-            WebSocketClient.Dispose();
+            foreach (var client in WebSocketClients)
+            {
+                client.Dispose();
+            }
             GC.SuppressFinalize(this);
         }
 
-        public async Task Connect()
+        public async Task Connect(int activeConnections = 2)
         {
-            Logger.LogInformation("Requesting WebSocket URL from Slack.");
-            var wssUrl = await GetWssUrl();
-            Logger.LogInformation("WebSocket URL requested successfully.");
+            if (activeConnections > SocketLimit)
+            {
+                Logger.LogWarning($"WebSocket connections are limited to {SocketLimit}.");
+                activeConnections = SocketLimit;
+            }
 
-            Logger.LogInformation("Connecting to WebSocket");
+            for (int i = 0; i < activeConnections; i++)
+            {
+                var logPreamble = $"Socket Connection {i} of {activeConnections}: ";
+                Logger.LogInformation($"{logPreamble}Requesting WebSocket URL from Slack.");
+                var wssUrl = await GetWssUrl();
+                Logger.LogInformation($"{logPreamble}WebSocket URL requested successfully.");
+
+                Logger.LogInformation($"{logPreamble}Connecting to WebSocket.");
+
+                try
+                {
+                    if (WebSocketClients[i] == null)
+                    {
+                        WebSocketClients[i] = new WebSocketWrapper();
+                    }
+                    else if (WebSocketClients[i].Connected == true)
+                    {
+                        Logger.LogInformation($"{logPreamble}Already established. Skipping.");
+                        continue;
+                    }
+                    WebSocketClients[i].MessageHandler = (e) => Task.Run(() => HandleMessage(e.Data, i));
+                    await WebSocketClients[i].ConnectAsync(wssUrl.ToString());
+                    WebSocketClients[i].Connected = true;
+                }
+                catch (Exception e)
+                {
+                    throw new SlackSocketConnectionException($"{logPreamble}Cannot connect to the WebSocket provided by Slack. See inner exception for more details.", e);
+                }
+                Logger.LogInformation($"{logPreamble}WebSocket connection successfully established.");
+            }
+        }
+
+        /// <summary>
+        /// When a disconnect message is received for a socket connection, we have to rebuilt the connection.
+        /// </summary>
+        /// <param name="socketIndex"></param>
+        /// <returns></returns>
+        private async Task RefreshConnection(int socketIndex)
+        {
+            Logger.LogInformation("Received a disconnect message.");
+            var wssUrl = await GetWssUrl();
             try
             {
-                WebSocketClient.MessageHandler = (e) => Task.Run(() => HandleMessage(e.Data));
-                await WebSocketClient.ConnectAsync(wssUrl.ToString());
+                WebSocketClients[socketIndex].Connected = false;
+                WebSocketClients[socketIndex].MessageHandler = (e) =>
+                    Task.Run(() => HandleMessage(e.Data, socketIndex));
+                await WebSocketClients[socketIndex].ConnectAsync(wssUrl.ToString());
+                WebSocketClients[socketIndex].Connected = true;
             }
             catch (Exception e)
             {
-                throw new SlackSocketConnectionException("Cannot connect to the WebSocket provided by Slack. See inner exception for more details.", e);
+                throw new SlackSocketConnectionException($"Cannot connect to the WebSocket provided by Slack. See inner exception for more details.", e);
             }
-            Logger.LogInformation("WebSocket connection successfully established.");
+            Logger.LogInformation($"WebSocket connection successfully reestablished.");
         }
 
         public bool MessageHasBeenHandled(string envelopeId)
@@ -125,7 +182,7 @@ namespace SlackDotNet
             return response.Url;
         }
 
-        public async Task HandleMessage(string message)
+        public async Task HandleMessage(string message, int socketIndex)
         {
             var socketMessage = JsonConvert.DeserializeObject<SlackWebSocketMessage>(message);
 
@@ -140,7 +197,7 @@ namespace SlackDotNet
             var response = new SlackWebSocketMessageResponse(socketMessage);
             if (!String.IsNullOrEmpty(socketMessage.EnvelopeId) && !acceptsResponse)
             {
-                await WebSocketClient.SendStringAsync(response.ToString());
+                await WebSocketClients[socketIndex].SendStringAsync(response.ToString());
             }
 
             // Find the appropriate handler
@@ -156,6 +213,9 @@ namespace SlackDotNet
                     break;
                 case (SlackWebSocketMessageType.interactive): // TODO
                 case (SlackWebSocketMessageType.events_api): // TODO
+                case (SlackWebSocketMessageType.disconnect):
+                    await RefreshConnection(socketIndex);
+                    break;
                 default:
                     await DefaultHandler.Handle(socketMessage);
                     break;
@@ -164,7 +224,7 @@ namespace SlackDotNet
             // If the handle accepts a response, we got a message back from the handler to send.
             if (acceptsResponse)
             {
-                await WebSocketClient.SendStringAsync(response.ToString());
+                await WebSocketClients[socketIndex].SendStringAsync(response.ToString());
             }
         }
     }
