@@ -136,15 +136,14 @@ namespace SlackDotNet
             }
 
             // After receiving a message from the WebSocket, we need to first ack the message to prevent resends if we won't be responding via the socket.
-            if (!String.IsNullOrEmpty(socketMessage.EnvelopeId)
-                && socketMessage.AcceptsResponsePayload == false)
+            var acceptsResponse = socketMessage.AcceptsResponsePayload;
+            var response = new SlackWebSocketMessageResponse(socketMessage);
+            if (!String.IsNullOrEmpty(socketMessage.EnvelopeId) && !acceptsResponse)
             {
-                var ack = new SlackWebSocketMessageResponse(socketMessage);
-                await WebSocketClient.SendStringAsync(ack.ToString());
+                await WebSocketClient.SendStringAsync(response.ToString());
             }
 
             // Find the appropriate handler
-            // TODO: this can be done better, and still ack appropriately
             switch (socketMessage.Type)
             {
                 case (SlackWebSocketMessageType.hello):
@@ -153,14 +152,19 @@ namespace SlackDotNet
                     break;
                 case (SlackWebSocketMessageType.slash_commands):
                     var slashCommandMessage = JsonConvert.DeserializeObject<SlashCommandMessage>(message);
-                    var response = await SlashCommandHandler.Handle(slashCommandMessage);
-                    await WebSocketClient.SendStringAsync(response.ToString());
+                    response = await SlashCommandHandler.Handle(slashCommandMessage);
                     break;
                 case (SlackWebSocketMessageType.interactive): // TODO
                 case (SlackWebSocketMessageType.events_api): // TODO
                 default:
                     await DefaultHandler.Handle(socketMessage);
                     break;
+            }
+
+            // If the handle accepts a response, we got a message back from the handler to send.
+            if (acceptsResponse)
+            {
+                await WebSocketClient.SendStringAsync(response.ToString());
             }
         }
     }
