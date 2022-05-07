@@ -30,8 +30,9 @@ public class SlackSocketTest
         var defaultHandler = new Mock<IDefaultHandler>();
         var helloHandler = new Mock<IHelloHandler>();
         var slashCommandHandler = new Mock<ISlashCommandHandler>();
+        var eventsApiHandler = new Mock<IEventsAPIHandler>();
 
-        SlackSocket = new SlackSocket(options, logger.Object, defaultHandler.Object, helloHandler.Object, slashCommandHandler.Object);
+        SlackSocket = new SlackSocket(options, logger.Object, defaultHandler.Object, helloHandler.Object, slashCommandHandler.Object, eventsApiHandler.Object);
     }
 
     /// <summary>

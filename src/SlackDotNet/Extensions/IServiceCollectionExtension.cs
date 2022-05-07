@@ -22,6 +22,7 @@ namespace SlackDotNet.Extensions
             services.TryAddScoped<IDefaultHandler, DefaultHandler>();
             services.TryAddScoped<ISlashCommandHandler, SlashCommandHandler>();
             services.TryAddScoped<IHelloHandler, HelloHandler>();
+            services.TryAddScoped<IEventsAPIHandler, EventsAPIHandler>();
 
             services.AddSingleton<ISlackSocket, SlackSocket>();
             return services;

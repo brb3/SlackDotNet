@@ -20,6 +20,7 @@ namespace SlackDotNet
         private ILogger<SlackSocket> Logger { get; }
         private IHelloHandler HelloHandler { get; }
         private ISlashCommandHandler SlashCommandHandler { get; }
+        private IEventsAPIHandler EventsAPIHandler { get; }
         private IDefaultHandler DefaultHandler { get; }
 
         /// <summary>
@@ -50,13 +51,15 @@ namespace SlackDotNet
             ILogger<SlackSocket> logger,
             IDefaultHandler defaultHandler,
             IHelloHandler helloHandler,
-            ISlashCommandHandler slashCommandHandler)
+            ISlashCommandHandler slashCommandHandler,
+            IEventsAPIHandler eventsAPIHandler)
         {
             Options = options.Value;
             Logger = logger;
             HelloHandler = helloHandler;
             DefaultHandler = defaultHandler;
             SlashCommandHandler = slashCommandHandler;
+            EventsAPIHandler = eventsAPIHandler;
         }
 
         public void Dispose()
@@ -211,11 +214,14 @@ namespace SlackDotNet
                     var slashCommandMessage = JsonConvert.DeserializeObject<SlashCommandMessage>(message);
                     response = await SlashCommandHandler.Handle(slashCommandMessage);
                     break;
-                case (SlackWebSocketMessageType.interactive): // TODO
-                case (SlackWebSocketMessageType.events_api): // TODO
+                case (SlackWebSocketMessageType.events_api):
+                    var eventsApiMessage = JsonConvert.DeserializeObject<EventsAPIMessage>(message);
+                    response = await EventsAPIHandler.Handle(eventsApiMessage);
+                    break;
                 case (SlackWebSocketMessageType.disconnect):
                     await RefreshConnection(socketIndex);
                     break;
+                case (SlackWebSocketMessageType.interactive): // TODO
                 default:
                     await DefaultHandler.Handle(socketMessage);
                     break;
