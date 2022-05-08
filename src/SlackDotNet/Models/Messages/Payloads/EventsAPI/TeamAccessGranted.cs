@@ -11,6 +11,6 @@ namespace SlackDotNet.Models.Messages.Payloads.EventsAPI
         public const string EventName = "team_access_granted";
 
         [JsonProperty("team_ids")]
-        public List<string> TeamIds  { get; set; }
+        public List<string> TeamIds { get; set; }
     }
 }
