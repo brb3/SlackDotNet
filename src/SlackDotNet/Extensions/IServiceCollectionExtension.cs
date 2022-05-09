@@ -19,10 +19,10 @@ namespace SlackDotNet.Extensions
 
             // Try to add our default implementation of the message handlers.
             // This allows a user to register their handlers first and we won't override them.
-            services.TryAddScoped<IDefaultHandler, DefaultHandler>();
-            services.TryAddScoped<ISlashCommandHandler, SlashCommandHandler>();
-            services.TryAddScoped<IHelloHandler, HelloHandler>();
-            services.TryAddScoped<IEventsAPIHandler, EventsAPIHandler>();
+            services.TryAddSingleton<IDefaultHandler, DefaultHandler>();
+            services.TryAddSingleton<ISlashCommandHandler, SlashCommandHandler>();
+            services.TryAddSingleton<IHelloHandler, HelloHandler>();
+            services.TryAddSingleton<IEventsAPIHandler, EventsAPIHandler>();
 
             services.AddSingleton<ISlackSocket, SlackSocket>();
             return services;
