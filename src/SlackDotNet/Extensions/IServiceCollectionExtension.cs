@@ -25,6 +25,8 @@ namespace SlackDotNet.Extensions
             services.TryAddSingleton<IEventsAPIHandler, EventsAPIHandler>();
 
             services.AddSingleton<ISlackSocket, SlackSocket>();
+
+            services.AddSingleton<ISlackClient, SlackClient>();
             return services;
         }
     }
