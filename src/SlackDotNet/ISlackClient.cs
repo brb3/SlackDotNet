@@ -40,5 +40,12 @@ namespace SlackDotNet
         /// </summary>
         /// <returns></returns>
         Task<Emojis> GetEmojisAndUrls();
+
+        /// <summary>
+        /// Publish a view.
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        Task<PublishViewResponse> PublishView(PublishViewRequest request);
     }
 }

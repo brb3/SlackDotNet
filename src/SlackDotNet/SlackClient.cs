@@ -71,6 +71,16 @@ namespace SlackDotNet
             return response;
         }
 
+        public async Task<PublishViewResponse> PublishView(PublishViewRequest request)
+        {
+            var response = await $"https://slack.com/api/views.publish"
+                .WithHeader("Authorization", "Bearer " + Options.OauthToken)
+                .PostJsonAsync(request)
+                .ReceiveJson<PublishViewResponse>();
+
+            return response;
+        }
+
         /// <summary>
         /// Refreshes the user list.
         ///
