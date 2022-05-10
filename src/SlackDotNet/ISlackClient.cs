@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using SlackDotNet.Models;
 using SlackDotNet.Models.Messages;
+using SlackDotNet.Models.Responses;
 
 namespace SlackDotNet
 {
@@ -33,5 +34,11 @@ namespace SlackDotNet
         /// <param name="username"></param>
         /// <returns></returns>
         Task<string> GetUserId(string username);
+
+        /// <summary>
+        /// Get's all the emojis in the workspace as a dictionary of name => URL
+        /// </summary>
+        /// <returns></returns>
+        Task<Emojis> GetEmojisAndUrls();
     }
 }

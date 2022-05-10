@@ -62,6 +62,15 @@ namespace SlackDotNet
             return Users.Find(u => u.Profile.DisplayName == username).Id;
         }
 
+        public async Task<Emojis> GetEmojisAndUrls()
+        {
+            var response = await $"https://slack.com/api/emoji.list"
+                .WithHeader("Authorization", "Bearer " + Options.OauthToken)
+                .GetJsonAsync<Emojis>();
+
+            return response;
+        }
+
         /// <summary>
         /// Refreshes the user list.
         ///
