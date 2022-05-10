@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using WebSocketExtensions;
 
 namespace SlackDotNet
 {
@@ -21,7 +22,7 @@ namespace SlackDotNet
         /// <param name="message"></param>
         /// <param name="socketIndex">WebSocket to use to respond to the message. (Index of available sockets)</param>
         /// <returns></returns>
-        Task HandleMessage(string message, int socketIndex);
+        Task HandleMessage(StringMessageReceivedEventArgs messageEvent);
 
         /// <summary>
         /// Determines if a message's envelopedId has already been handled.
