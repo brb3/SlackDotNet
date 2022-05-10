@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Flurl.Http;
 using Microsoft.Extensions.Logging;
@@ -11,6 +12,7 @@ using SlackDotNet.Handlers;
 using SlackDotNet.Models;
 using SlackDotNet.Models.Messages;
 using SlackDotNet.Models.Responses;
+using WebSocketExtensions;
 
 namespace SlackDotNet
 {
@@ -20,6 +22,7 @@ namespace SlackDotNet
         private ILogger<SlackSocket> Logger { get; }
         private IHelloHandler HelloHandler { get; }
         private ISlashCommandHandler SlashCommandHandler { get; }
+        private IEventsAPIHandler EventsAPIHandler { get; }
         private IDefaultHandler DefaultHandler { get; }
 
         /// <summary>
@@ -31,7 +34,9 @@ namespace SlackDotNet
         /// <summary>
         /// A collection of WebSocketClients and their connection status.
         /// </summary>
-        private WebSocketWrapper[] WebSocketClients { get; set; } = Array.Empty<WebSocketWrapper>();
+        private List<WebSocketWrapper> WebSocketClients { get; set; } = new List<WebSocketWrapper>();
+
+        private Guid[] WebSocketIds { get; set; } = new Guid[10];
 
         /// <summary>
         /// A list of envelope IDs and the time when they were received.
@@ -50,21 +55,20 @@ namespace SlackDotNet
             ILogger<SlackSocket> logger,
             IDefaultHandler defaultHandler,
             IHelloHandler helloHandler,
-            ISlashCommandHandler slashCommandHandler)
+            ISlashCommandHandler slashCommandHandler,
+            IEventsAPIHandler eventsAPIHandler)
         {
             Options = options.Value;
             Logger = logger;
             HelloHandler = helloHandler;
             DefaultHandler = defaultHandler;
             SlashCommandHandler = slashCommandHandler;
+            EventsAPIHandler = eventsAPIHandler;
         }
 
         public void Dispose()
         {
-            foreach (var client in WebSocketClients)
-            {
-                client.Dispose();
-            }
+            WebSocketClients.ForEach((c) => c.Dispose());
             GC.SuppressFinalize(this);
         }
 
@@ -78,7 +82,7 @@ namespace SlackDotNet
 
             for (int i = 0; i < activeConnections; i++)
             {
-                var logPreamble = $"Socket Connection {i} of {activeConnections}: ";
+                var logPreamble = $"Socket Connection {i+1} of {activeConnections}: ";
                 Logger.LogInformation($"{logPreamble}Requesting WebSocket URL from Slack.");
                 var wssUrl = await GetWssUrl();
                 Logger.LogInformation($"{logPreamble}WebSocket URL requested successfully.");
@@ -87,16 +91,16 @@ namespace SlackDotNet
 
                 try
                 {
-                    if (WebSocketClients[i] == null)
+                    if (WebSocketClients.ElementAtOrDefault(i) == null)
                     {
-                        WebSocketClients[i] = new WebSocketWrapper();
+                        WebSocketClients.Add(new WebSocketWrapper());
                     }
                     else if (WebSocketClients[i].Connected == true)
                     {
                         Logger.LogInformation($"{logPreamble}Already established. Skipping.");
                         continue;
                     }
-                    WebSocketClients[i].MessageHandler = (e) => Task.Run(() => HandleMessage(e.Data, i));
+                    WebSocketClients[i].MessageHandler = (e) => Task.Run(() => HandleMessage(e));
                     await WebSocketClients[i].ConnectAsync(wssUrl.ToString());
                     WebSocketClients[i].Connected = true;
                 }
@@ -111,17 +115,18 @@ namespace SlackDotNet
         /// <summary>
         /// When a disconnect message is received for a socket connection, we have to rebuilt the connection.
         /// </summary>
-        /// <param name="socketIndex"></param>
+        /// <param name="connectionId"></param>
         /// <returns></returns>
-        private async Task RefreshConnection(int socketIndex)
+        private async Task RefreshConnection(Guid clientId)
         {
             Logger.LogInformation("Received a disconnect message.");
             var wssUrl = await GetWssUrl();
+            var socketIndex = WebSocketClients.FindIndex((w) => w.ClientId == clientId);
             try
             {
                 WebSocketClients[socketIndex].Connected = false;
                 WebSocketClients[socketIndex].MessageHandler = (e) =>
-                    Task.Run(() => HandleMessage(e.Data, socketIndex));
+                    Task.Run(() => HandleMessage(e));
                 await WebSocketClients[socketIndex].ConnectAsync(wssUrl.ToString());
                 WebSocketClients[socketIndex].Connected = true;
             }
@@ -182,9 +187,9 @@ namespace SlackDotNet
             return response.Url;
         }
 
-        public async Task HandleMessage(string message, int socketIndex)
+        public async Task HandleMessage(StringMessageReceivedEventArgs messageEvent)
         {
-            var socketMessage = JsonConvert.DeserializeObject<SlackWebSocketMessage>(message);
+            var socketMessage = JsonConvert.DeserializeObject<SlackWebSocketMessage>(messageEvent.Data);
 
             if (MessageHasBeenHandled(socketMessage.EnvelopeId))
             {
@@ -197,25 +202,29 @@ namespace SlackDotNet
             var response = new SlackWebSocketMessageResponse(socketMessage);
             if (!String.IsNullOrEmpty(socketMessage.EnvelopeId) && !acceptsResponse)
             {
-                await WebSocketClients[socketIndex].SendStringAsync(response.ToString());
+                Logger.LogInformation($"Acknowledging websocket message {socketMessage.EnvelopeId}");
+                await messageEvent.WebSocket.SendStringAsync(response.ToString());
             }
 
             // Find the appropriate handler
             switch (socketMessage.Type)
             {
                 case (SlackWebSocketMessageType.hello):
-                    var helloMessage = JsonConvert.DeserializeObject<HelloMessage>(message);
+                    var helloMessage = JsonConvert.DeserializeObject<HelloMessage>(messageEvent.Data);
                     await HelloHandler.Handle(helloMessage);
                     break;
                 case (SlackWebSocketMessageType.slash_commands):
-                    var slashCommandMessage = JsonConvert.DeserializeObject<SlashCommandMessage>(message);
+                    var slashCommandMessage = JsonConvert.DeserializeObject<SlashCommandMessage>(messageEvent.Data);
                     response = await SlashCommandHandler.Handle(slashCommandMessage);
                     break;
-                case (SlackWebSocketMessageType.interactive): // TODO
-                case (SlackWebSocketMessageType.events_api): // TODO
-                case (SlackWebSocketMessageType.disconnect):
-                    await RefreshConnection(socketIndex);
+                case (SlackWebSocketMessageType.events_api):
+                    var eventsApiMessage = JsonConvert.DeserializeObject<EventsAPIMessage>(messageEvent.Data);
+                    response = await EventsAPIHandler.Handle(eventsApiMessage);
                     break;
+                case (SlackWebSocketMessageType.disconnect):
+                    await RefreshConnection(messageEvent.ConnectionId);
+                    break;
+                case (SlackWebSocketMessageType.interactive): // TODO
                 default:
                     await DefaultHandler.Handle(socketMessage);
                     break;
@@ -224,7 +233,7 @@ namespace SlackDotNet
             // If the handle accepts a response, we got a message back from the handler to send.
             if (acceptsResponse)
             {
-                await WebSocketClients[socketIndex].SendStringAsync(response.ToString());
+                await messageEvent.WebSocket.SendStringAsync(response.ToString());
             }
         }
     }
