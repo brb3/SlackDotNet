@@ -5,10 +5,10 @@ namespace SlackDotNet.Models
     public class ConfirmDialog
     {
         [JsonProperty("title")]
-        public string Title { get; set; }
+        public TextBlock Title { get; set; }
 
         [JsonProperty("text")]
-        public string Text { get; set; }
+        public TextBlock Text { get; set; }
 
         [JsonProperty("confirm")]
         public TextBlock Confirm { get; set; }

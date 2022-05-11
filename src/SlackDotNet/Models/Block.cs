@@ -146,6 +146,7 @@ namespace SlackDotNet.Models
         ///
         /// Valid for: `section`
         /// </summary>
+        [JsonProperty("accessory")]
         public BlockElement Accessory { get; set; }
     }
 }
