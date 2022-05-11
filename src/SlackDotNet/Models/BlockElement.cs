@@ -100,5 +100,14 @@ namespace SlackDotNet.Models
         /// </summary>
         [JsonProperty("initial_time")]
         public string InitialTime { get; set; }
+
+        [JsonProperty("initial_value")]
+        public string InitialValue { get; set; }
+
+        [JsonProperty("min_length")]
+        public int? MinLength { get; set; } = null;
+
+        [JsonProperty("max_length")]
+        public int? MaxLength { get; set; } = null;
     }
 }
