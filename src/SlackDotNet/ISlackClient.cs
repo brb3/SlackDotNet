@@ -54,5 +54,12 @@ namespace SlackDotNet
         /// <param name="request"></param>
         /// <returns></returns>
         Task<PublishViewResponse> PublishView(PublishViewRequest request);
+
+        /// <summary>
+        /// Open a view.
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        Task<PublishViewResponse> OpenView(OpenViewRequest request);
     }
 }
