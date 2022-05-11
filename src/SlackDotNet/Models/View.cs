@@ -57,14 +57,14 @@ namespace SlackDotNet.Models
         /// Defaults to false.
         /// </summary>
         [JsonProperty("clear_on_close")]
-        public bool ClearOnClose { get; set; } = false;
+        public bool? ClearOnClose { get; set; }
 
         /// <summary>
         /// Indicates whether Slack will send your request URL a view_closed event when a user clicks the close button.
         /// Defaults to false.
         /// </summary>
         [JsonProperty("notify_on_close")]
-        public bool NotifyOnClose { get; set; } = false;
+        public bool? NotifyOnClose { get; set; }
 
         /// <summary>
         /// A custom identifier that must be unique for all views on a per-team basis.
@@ -77,6 +77,6 @@ namespace SlackDotNet.Models
         /// This property is for configuration modals.
         /// </summary>
         [JsonProperty("submit_disabled")]
-        public bool SubmitDisabled { get; set; } = false;
+        public bool? SubmitDisabled { get; set; }
     }
 }

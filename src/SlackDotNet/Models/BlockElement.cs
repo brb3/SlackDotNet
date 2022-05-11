@@ -45,7 +45,7 @@ namespace SlackDotNet.Models
         public List<Option> InitialOptions { get; set; }
 
         [JsonProperty("focus_on_load")]
-        public bool FocusOnLoad { get; set; }
+        public bool? FocusOnLoad { get; set; }
 
         [JsonProperty("placeholder")]
         public TextBlock Placeholder { get; set; }
@@ -75,7 +75,7 @@ namespace SlackDotNet.Models
         public List<string> InitialConversations { get; set; }
 
         [JsonProperty("default_to_current_conversation")]
-        public bool DefaultToCurrentConversation { get; set; }
+        public bool? DefaultToCurrentConversation { get; set; }
 
         [JsonProperty("filter")]
         public Filter Filter { get; set; }
@@ -84,7 +84,7 @@ namespace SlackDotNet.Models
         public List<string> InitialChannels { get; set; }
 
         [JsonProperty("multiline")]
-        public bool Multiline { get; set; }
+        public bool? Multiline { get; set; }
 
         [JsonProperty("dispatch_action_config")]
         public DispatchConfiguration DispatchActionConfig { get; set; }
@@ -93,7 +93,7 @@ namespace SlackDotNet.Models
         public string InitialUser { get; set; }
 
         [JsonProperty("response_url_enabled")]
-        public bool ResponseUrlEnabled { get; set; }
+        public bool? ResponseUrlEnabled { get; set; }
 
         /// <summary>
         /// Format `HH:mm` where HH is the 24-hour format of an hour (00 to 23) and mm is minutes with leading zeros (00 to 59)

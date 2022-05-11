@@ -22,7 +22,7 @@ namespace SlackDotNet.Models
         /// This field is only usable when `type` is `plain_text`.
         /// </summary>
         [JsonProperty("emoji")]
-        public bool Emoji { get; set; } = false;
+        public bool? Emoji { get; set; }
 
         /// <summary>
         /// When set to false (as is default) URLs will be auto-converted into links, conversation names will be link-ified, and certain mentions will be automatically parsed.
@@ -30,6 +30,6 @@ namespace SlackDotNet.Models
         /// This field is only usable when `type` is `mrkdwn`
         /// </summary>
         [JsonProperty("verbatim")]
-        public bool Verbatim { get; set; } = false;
+        public bool? Verbatim { get; set; }
     }
 }

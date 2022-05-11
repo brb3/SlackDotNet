@@ -110,7 +110,7 @@ namespace SlackDotNet.Models
         /// Valid for: `input`
         /// </summary>
         [JsonProperty("dispatch_action")]
-        public bool DispatchAction { get; set; }
+        public bool? DispatchAction { get; set; }
 
         /// <summary>
         /// An optional hint that appears below an input element in a lighter grey.
@@ -129,7 +129,7 @@ namespace SlackDotNet.Models
         /// Valid for: `input`
         /// </summary>
         [JsonProperty("optional")]
-        public bool Optional { get; set; }
+        public bool? Optional { get; set; }
 
         /// <summary>
         /// Required if no text is provided. A List of text objects.

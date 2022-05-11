@@ -2,8 +2,10 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Flurl;
 using Flurl.Http;
+using Flurl.Http.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using SlackDotNet.Models;
 using SlackDotNet.Models.Messages;
 using SlackDotNet.Models.Responses;
@@ -22,6 +24,16 @@ namespace SlackDotNet
         {
             Options = options.Value;
             Logger = logger;
+
+            FlurlHttp.Configure(settings =>
+            {
+                var jsonSettings = new JsonSerializerSettings()
+                {
+                    NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore
+                };
+
+                settings.JsonSerializer = new NewtonsoftJsonSerializer(jsonSettings);
+            });
         }
 
         public async Task<User> GetUser(string userId)
