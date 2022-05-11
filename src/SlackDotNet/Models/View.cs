@@ -78,5 +78,8 @@ namespace SlackDotNet.Models
         /// </summary>
         [JsonProperty("submit_disabled")]
         public bool? SubmitDisabled { get; set; }
+
+        [JsonProperty("state")]
+        public ViewSubmissionState State { get; set; } = null;
     }
 }
