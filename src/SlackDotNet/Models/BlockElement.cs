@@ -66,10 +66,10 @@ namespace SlackDotNet.Models
         public List<OptionGroup> OptionGroups { get; set; }
 
         [JsonProperty("max_selected_items")]
-        public int MaxSelectedItems { get; set; }
+        public int? MaxSelectedItems { get; set; }
 
         [JsonProperty("min_query_length")]
-        public int MinQueryLength { get; set; }
+        public int? MinQueryLength { get; set; }
 
         [JsonProperty("initial_conversations")]
         public List<string> InitialConversations { get; set; }
