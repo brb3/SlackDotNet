@@ -29,11 +29,18 @@ namespace SlackDotNet
         Task<bool> DeleteResponse(string responseUrl);
 
         /// <summary>
-        /// Get's the user's ID from their username
+        /// Gets the user's ID from their display name
         /// </summary>
         /// <param name="username"></param>
         /// <returns></returns>
         Task<string> GetUserId(string username);
+
+        /// <summary>
+        /// Gets the user's display name from their username
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        Task<string> GetUserName(string userId);
 
         /// <summary>
         /// Get's all the emojis in the workspace as a dictionary of name => URL

@@ -74,6 +74,12 @@ namespace SlackDotNet
             return Users.Find(u => u.Profile.DisplayName == username).Id;
         }
 
+        public async Task<string> GetUserName(string userId)
+        {
+            await RefreshUserList();
+            return Users.Find(u => u.Id == userId).Profile.DisplayName;
+        }
+
         public async Task<Emojis> GetEmojisAndUrls()
         {
             var response = await $"https://slack.com/api/emoji.list"
