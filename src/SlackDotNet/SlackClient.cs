@@ -46,14 +46,15 @@ namespace SlackDotNet
             return response.User;
         }
 
-        public async Task<bool> PostMessage(ChatMessage message, bool ephemeral = false)
+        public async Task<ChatMessageResponse> PostMessage(ChatMessage message, bool ephemeral = false)
         {
             var endpoint = ephemeral ? "postEphemeral" : "postMessage";
             var response = await $"https://slack.com/api/chat.{endpoint}"
                 .WithHeader("Authorization", "Bearer " + Options.OauthToken)
-                .PostJsonAsync(message);
+                .PostJsonAsync(message)
+                .ReceiveJson<ChatMessageResponse>();
 
-            return true;
+            return response;
         }
 
         public async Task<bool> DeleteResponse(string responseUrl)

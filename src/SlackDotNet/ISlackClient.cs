@@ -19,7 +19,7 @@ namespace SlackDotNet
         /// </summary>
         /// <param name="message"></param>
         /// <returns></returns>
-        Task<bool> PostMessage(ChatMessage message, bool ephemeral = false);
+        Task<ChatMessageResponse> PostMessage(ChatMessage message, bool ephemeral = false);
 
         /// <summary>
         /// Deletes a message in response to an interactive command
