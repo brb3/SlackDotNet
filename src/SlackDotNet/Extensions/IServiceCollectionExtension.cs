@@ -23,8 +23,11 @@ namespace SlackDotNet.Extensions
             services.TryAddSingleton<ISlashCommandHandler, SlashCommandHandler>();
             services.TryAddSingleton<IHelloHandler, HelloHandler>();
             services.TryAddSingleton<IEventsAPIHandler, EventsAPIHandler>();
+            services.TryAddSingleton<IInteractiveHandler, InteractiveHandler>();
 
             services.AddSingleton<ISlackSocket, SlackSocket>();
+
+            services.AddSingleton<ISlackClient, SlackClient>();
             return services;
         }
     }
